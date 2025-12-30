@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Leedwey - Full-Stack B2B Operating System
 
-## Getting Started
+A comprehensive B2B platform connecting manufacturers directly with buyers worldwide. Built with Next.js, TypeScript, Prisma, and modern web technologies.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Full-Stack B2B Platform**: Complete ecosystem for manufacturer-to-customer commerce
+- **Trust-as-a-Service**: Verified manufacturers and buyers with secure authentication
+- **Product Catalog**: Virtual global expo with advanced search and filtering
+- **Real-time Messaging**: Integrated communication system with Socket.io
+- **Order Management**: Complete order lifecycle from quote to delivery
+- **Analytics Dashboard**: Business insights and performance metrics
+- **Secure Payments**: Stripe integration for transactions
+- **Document Management**: Automated FOB, FTA, and customs documentation
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16.1.1 (App Router)
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js
+- **UI Components**: Radix UI, Tailwind CSS
+- **Real-time**: Socket.io
+- **Search**: Algolia
+- **Payments**: Stripe
+- **Video/Audio**: Daily.co, Agora
+- **File Storage**: Cloudinary
+- **State Management**: Zustand, TanStack Query
+- **Forms**: React Hook Form + Zod
+- **Animations**: Framer Motion
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd leedwey
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in all required environment variables in `.env`
+
+4. **Set up the database**
+   ```bash
+   # Generate Prisma Client
+   npx prisma generate
+   
+   # Run migrations
+   npx prisma migrate dev
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 🗄️ Database Schema
+
+The application uses Prisma with PostgreSQL. Key models include:
+
+- **User**: Manufacturers and buyers with role-based access
+- **Product**: Product catalog with specifications and pricing
+- **Order**: Order management with status tracking
+- **Conversation/Message**: Real-time messaging system
+- **Review**: Rating and review system
+- **Verification**: Business verification documents
+- **Document**: File management for invoices, quotes, etc.
+
+Run `npx prisma studio` to view and manage your database.
+
+## 🔐 Authentication
+
+The platform uses NextAuth.js with credentials provider. Users can:
+- Sign up as Manufacturer or Buyer
+- Email/password authentication
+- Session management
+- Role-based access control
+
+## 📁 Project Structure
+
+```
+leedwey/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── auth/              # Authentication pages
+│   ├── dashboard/         # Dashboard pages
+│   ├── products/          # Product pages
+│   ├── messages/          # Messaging pages
+│   └── profile/            # User profile pages
+├── components/            # React components
+│   ├── ui/               # Reusable UI components
+│   ├── layout/           # Layout components
+│   └── providers/        # Context providers
+├── lib/                  # Utility functions
+│   ├── db.ts            # Prisma client
+│   ├── auth.ts          # NextAuth config
+│   └── utils.ts         # Helper functions
+├── prisma/              # Database schema
+│   └── schema.prisma    # Prisma schema
+└── public/              # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎨 Theme Colors
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Cream: `#F3E5D7`
+- Orange: `#F49B41`
+- Blue: `#ACC8E5`
+- Light Gray: `#EDF0F3`
+- White: `#FFFFFF`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔧 Available Scripts
 
-## Learn More
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See `.env.example` for all required environment variables. Key ones include:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Secret for NextAuth.js
+- `NEXTAUTH_URL` - Application URL
+- `ALGOLIA_APP_ID` & `ALGOLIA_SEARCH_KEY` - Algolia search credentials
+- `STRIPE_SECRET_KEY` - Stripe payment processing
+- `CLOUDINARY_*` - Image upload configuration
 
-## Deploy on Vercel
+## 🚧 Development Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [x] Project setup and structure
+- [x] Database schema design
+- [x] Authentication system
+- [x] UI components library
+- [x] Dashboard and navigation
+- [x] Product catalog
+- [x] Messaging system UI
+- [x] User profile management
+- [ ] Real-time messaging with Socket.io
+- [ ] Algolia search integration
+- [ ] Order management system
+- [ ] Payment processing
+- [ ] Document generation
+- [ ] Video/voice call integration
+- [ ] Email notifications
+- [ ] Analytics and reporting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 📧 Support
+
+For support, email support@leedwey.com or open an issue in the repository.

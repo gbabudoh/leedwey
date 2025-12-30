@@ -1,0 +1,325 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MANUFACTURER
+  BUYER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+  REJECTED
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+enum SubscriptionTier {
+  FREE
+  BASIC
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  password      String
+  firstName     String
+  lastName      String
+  companyName   String?
+  phone         String?
+  role          UserRole        @default(BUYER)
+  status        UserStatus      @default(PENDING)
+  avatar        String?
+  bio           String?
+  website       String?
+  country       String?
+  city          String?
+  address       String?
+  subscriptionTier SubscriptionTier @default(FREE)
+  subscriptionExpiresAt DateTime?
+  emailVerified Boolean         @default(false)
+  emailVerifiedAt DateTime?
+  twoFactorEnabled Boolean       @default(false)
+  twoFactorSecret String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  products      Product[]
+  orders        Order[]
+  sentMessages  Message[]       @relation("SentMessages")
+  receivedMessages Message[]    @relation("ReceivedMessages")
+  conversations ConversationParticipant[]
+  verification  Verification?
+  sessions      Session[]
+  accounts      Account[]
+  notifications Notification[]
+  documents     Document[]
+  reviews       Review[]
+  receivedReviews Review[]      @relation("ReceivedReviews")
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessLicense String?
+  taxId     String?
+  documents String[] // Array of document URLs
+  verifiedAt DateTime?
+  verifiedBy String?
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?       @db.Text
+  shortDescription String?
+  manufacturerId String
+  manufacturer User         @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  category    String?
+  subcategory String?
+  images      String[]      // Array of image URLs
+  price       Float
+  currency    String        @default("USD")
+  minOrderQuantity Int      @default(1)
+  unit        String        @default("piece")
+  status      ProductStatus @default(DRAFT)
+  specifications Json?      // Flexible JSON for product specs
+  tags        String[]
+  sku         String?
+  weight      Float?
+  dimensions  Json?         // {length, width, height, unit}
+  fobPort     String?
+  leadTime    String?
+  certifications String[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  orderItems  OrderItem[]
+  reviews     Review[]
+
+  @@index([manufacturerId])
+  @@index([status])
+  @@index([slug])
+  @@index([category])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  buyerId         String
+  buyer           User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  status          OrderStatus @default(PENDING)
+  subtotal        Float
+  tax             Float        @default(0)
+  shipping        Float        @default(0)
+  total           Float
+  currency        String       @default("USD")
+  shippingAddress Json         // Full address object
+  billingAddress  Json?
+  paymentMethod   String?
+  paymentStatus   String?
+  fobTerms        String?
+  shippingMethod  String?
+  trackingNumber  String?
+  estimatedDelivery DateTime?
+  notes           String?     @db.Text
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Relations
+  items          OrderItem[]
+
+  @@index([buyerId])
+  @@index([status])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  type      String   @default("direct") // direct, group
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  participants ConversationParticipant[]
+  messages      Message[]
+
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime?
+  joinedAt       DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId     String?
+  receiver       User?        @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  type           MessageType  @default(TEXT)
+  content        String       @db.Text
+  attachments    String[]     // Array of file URLs
+  read           Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User     @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId  String
+  reviewee    User     @relation("ReceivedReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
+  rating      Int      // 1-5
+  comment     String?  @db.Text
+  orderId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([reviewerId])
+  @@index([revieweeId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String   @db.Text
+  link      String?
+  read      Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  type        String   // invoice, quote, contract, etc.
+  fileUrl     String
+  mimeType    String?
+  size        Int?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
