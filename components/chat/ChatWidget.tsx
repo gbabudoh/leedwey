@@ -82,10 +82,10 @@ export function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-50 group border border-white/10"
+          className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-50 group border border-white/10 cursor-pointer"
         >
-          <div className="absolute inset-0 rounded-full bg-indigo-600 animate-ping opacity-20 group-hover:opacity-40"></div>
-          <MessageSquare className="w-8 h-8 relative z-10" />
+          <div className="absolute inset-0 rounded-full bg-indigo-600 animate-ping opacity-20 group-hover:opacity-40 cursor-pointer"></div>
+          <MessageSquare className="w-8 h-8 relative z-10 cursor-pointer" />
         </button>
       )}
 
@@ -97,7 +97,7 @@ export function ChatWidget() {
           <div className="p-5 bg-slate-900 text-white flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-400 flex items-center justify-center shadow-lg">
-                <Bot className="w-6 h-6 text-white" />
+                <Bot className="w-6 h-6 text-white cursor-pointer" />
               </div>
               <div>
                 <h3 className="font-bold text-sm flex items-center gap-1.5">
@@ -108,14 +108,14 @@ export function ChatWidget() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors">
-                <Minus className="w-4 h-4" />
+              <button className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors cursor-pointer">
+                <Minus className="w-4 h-4 cursor-pointer" />
               </button>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors"
+                className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 cursor-pointer" />
               </button>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function ChatWidget() {
                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                <span className="text-[11px] font-bold text-slate-600">Botonic Powered Interface</span>
             </div>
-            <button className="text-[10px] font-extrabold text-indigo-600 uppercase hover:underline">Learn More</button>
+            <button className="text-[10px] font-extrabold text-indigo-600 uppercase hover:underline cursor-pointer">Learn More</button>
           </div>
 
           {/* Messages Area */}
@@ -157,8 +157,8 @@ export function ChatWidget() {
           {/* Input Area */}
           <div className="p-4 bg-white border-t border-slate-100">
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
-              <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                <Plus className="w-5 h-5" />
+              <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                <Plus className="w-5 h-5 cursor-pointer" />
               </button>
               <input
                 type="text"
@@ -170,19 +170,19 @@ export function ChatWidget() {
               />
               <button 
                 onClick={() => handleSend()}
-                className={`p-2 rounded-xl transition-all ${
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
                   inputText.trim() 
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 scale-100' 
                     : 'text-slate-300 scale-90 grayscale'
                 }`}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4 cursor-pointer" />
               </button>
             </div>
             
             <div className="flex items-center justify-between mt-3 px-1">
-               <button className="p-1 text-slate-400 hover:text-slate-600">
-                  <MoreHorizontal className="w-4 h-4" />
+               <button className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                  <MoreHorizontal className="w-4 h-4 cursor-pointer" />
                </button>
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Powered by Leedwey AI Node</span>
             </div>

@@ -38,9 +38,9 @@ export function ChatMessage({ message, onAction }: ChatMessageProps) {
                 <button
                   key={idx}
                   onClick={() => onAction(action)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold rounded-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold rounded-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all active:scale-95 cursor-pointer"
                 >
-                  {action.type === 'url' ? <ExternalLink className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+                  {action.type === 'url' ? <ExternalLink className="w-3 h-3 cursor-pointer" /> : <ArrowRight className="w-3 h-3 cursor-pointer" />}
                   {action.label}
                 </button>
               ))}
