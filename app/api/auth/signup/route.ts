@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firstName, lastName, email, password, companyName, role } = body;
+    const { firstName, lastName, email, password, companyName, segment, role } = body;
 
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
@@ -30,14 +30,16 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await prisma.user.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = await (prisma.user as any).create({
       data: {
         firstName,
         lastName,
         email,
         password: hashedPassword,
         companyName,
-        role: role || "BUYER",
+        segment,
+        role: role || "INDIVIDUAL_BUYER",
         status: "PENDING", // Requires verification
       },
     });
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
@@ -62,4 +64,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -12,7 +12,8 @@ datasource db {
 
 enum UserRole {
   MANUFACTURER
-  BUYER
+  BUSINESS_BUYER
+  INDIVIDUAL_BUYER
   ADMIN
 }
 
@@ -31,17 +32,34 @@ enum ProductStatus {
 
 enum OrderStatus {
   PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
+  PRODUCTION
+  SHIPPING
+  INSPECTION
+  COMPLETED
+  DISPUTED
+}
+
+enum MilestoneStatus {
+  PENDING
+  RELEASED
+  FROZEN
 }
 
 enum MessageType {
   TEXT
   IMAGE
   FILE
+  SYSTEM
+  FORMAL
+}
+
+enum MailCategory {
+  GENERAL
+  INQUIRY
+  QUOTE_REQUEST
+  QUOTE
+  INVOICE
+  ADMIN
   SYSTEM
 }
 
@@ -59,9 +77,12 @@ model User {
   firstName     String
   lastName      String
   companyName   String?
+  segment       String?
   phone         String?
-  role          UserRole        @default(BUYER)
+  role          UserRole        @default(INDIVIDUAL_BUYER)
   status        UserStatus      @default(PENDING)
+  strikes       Int             @default(0)
+  isSuspended   Boolean         @default(false)
   avatar        String?
   bio           String?
   website       String?
@@ -77,6 +98,11 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
+  // Verification Documents (MinIO URLs)
+  idDocumentUrl     String?      // Passport/DL
+  businessRegUrl    String?      // Business registration
+  factoryCertUrl    String?      // Manufacturer specific
+
   // Relations
   products      Product[]
   orders        Order[]
@@ -90,6 +116,8 @@ model User {
   documents     Document[]
   reviews       Review[]
   receivedReviews Review[]      @relation("ReceivedReviews")
+  flags         Flag[]
+  verificationDocs VerificationDoc[]
 
   @@index([email])
   @@index([role])
@@ -200,8 +228,15 @@ model Order {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
+  // Shipping Integration
+  freightPartnerId  String?
+  freightPartner    FreightPartner? @relation(fields: [freightPartnerId], references: [id])
+  showcaseVideoUrl  String?      // Internal system video reference
+  buyerClaimVideoUrl String?     // Evidence for disputes
+
   // Relations
   items          OrderItem[]
+  milestones     Milestone[]
 
   @@index([buyerId])
   @@index([status])
@@ -259,11 +294,15 @@ model Message {
   sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiverId     String?
   receiver       User?        @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  subject        String?      @db.Text
+  category       MailCategory @default(GENERAL)
   type           MessageType  @default(TEXT)
   content        String       @db.Text
   attachments    String[]     // Array of file URLs
   read           Boolean      @default(false)
   readAt         DateTime?
+  isArchived     Boolean      @default(false)
+  wasFlagged     Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
   @@index([conversationId])
@@ -323,3 +362,62 @@ model Document {
   @@index([type])
 }
 
+model Milestone {
+  id                String          @id @default(cuid())
+  orderId           String
+  order             Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount            Float
+  description       String          // e.g., "30% Deposit"
+  status            MilestoneStatus @default(PENDING)
+  releasedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([orderId])
+}
+
+model FreightPartner {
+  id                String   @id @default(cuid())
+  name              String
+  baseRate          Float
+  logo              String?
+  contactInfo       String?
+  isVetted          Boolean  @default(true)
+  orders            Order[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Flag {
+  id          String   @id @default(cuid())
+  reason      String   // e.g., "Phone Number Detection"
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messageId   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model VerificationDoc {
+  id                String   @id @default(cuid())
+  type              String   // e.g., "Business_License", "ISO_9001"
+  documentUrl       String
+  expiryDate        DateTime
+  isExpired         Boolean  @default(false)
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model SystemConfig {
+  id                String   @id @default(cuid())
+  key               String   @unique // e.g., "hero_overlay_image"
+  value             String   @db.Text
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
